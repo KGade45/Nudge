@@ -63,3 +63,6 @@ fastlane/test_output
 
 # all API Keys
 Nudge/Constants/
+
+
+*.xcuserstate
