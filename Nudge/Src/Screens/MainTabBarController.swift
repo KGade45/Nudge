@@ -34,6 +34,8 @@ class MainTabBarController: UITabBarController {
 
         viewControllers = [homeVC, addVC, progressVC, profileVC]
         tabBar.tintColor = .label
+
+//        TODO: - Clean following methods after finalizing tab bar
 //        setupAppearance()
     }
 
