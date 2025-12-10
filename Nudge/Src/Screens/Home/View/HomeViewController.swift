@@ -32,17 +32,13 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        for family in UIFont.familyNames.sorted() {
-            print("Family: \(family)")
-            for name in UIFont.fontNames(forFamilyName: family) {
-                print("  → \(name)")
-            }
-        }
 
         view.addSubview(titleLabel)
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
+
+//        TODO: - Add seperate method for constraints
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
