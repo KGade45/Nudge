@@ -7,6 +7,7 @@
 
 import UIKit
 
+// TODO: - Fix the graph to align for both weekly and monthly view.
 final class BarGraphView: UIView {
 
     // MARK: - UI
