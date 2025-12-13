@@ -30,6 +30,16 @@ class HomeCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
+    let checkmark: UIImageView = {
+        let imageview = UIImageView()
+        imageview.image = UIImage(systemName: "checkmark.seal.fill")
+        imageview.tintColor = .systemGreen
+        imageview.contentMode = .scaleAspectFit
+        imageview.clipsToBounds = true
+        imageview.translatesAutoresizingMaskIntoConstraints = false
+        return imageview
+    }()
+
     let capsuleView: InfoCapsule = {
         let view = InfoCapsule()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -37,11 +47,23 @@ class HomeCollectionViewCell: UICollectionViewCell {
         return view
     }()
 
+    let statusLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+        label.font = UIFont(name: "AvenirNext-UltraLight", size: 14)
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(containerView)
         containerView.addSubview(titleLabel)
+        containerView.addSubview(checkmark)
         containerView.addSubview(capsuleView)
+        containerView.addSubview(statusLabel)
         setupConstraints()
         setupShadow()
     }
@@ -62,10 +84,19 @@ class HomeCollectionViewCell: UICollectionViewCell {
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
             titleLabel.heightAnchor.constraint(equalToConstant: 25),
 
-            capsuleView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            checkmark.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            checkmark.topAnchor.constraint(equalTo: titleLabel.topAnchor),
+            checkmark.heightAnchor.constraint(equalToConstant: 20),
+
+            capsuleView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             capsuleView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 25),
             capsuleView.widthAnchor.constraint(equalToConstant: 80),
-            capsuleView.heightAnchor.constraint(equalToConstant: 18)
+            capsuleView.heightAnchor.constraint(equalToConstant: 18),
+
+            statusLabel.topAnchor.constraint(equalTo: capsuleView.bottomAnchor, constant: 8),
+            statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 25),
+            statusLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12)
+            
         ])
     }
 
