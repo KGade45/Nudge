@@ -43,3 +43,8 @@ class InputField: UIView {
     var text: String? { textField.text }
 }
 
+extension InputField {
+    func focus() {
+        textField.becomeFirstResponder()
+    }
+}
