@@ -167,7 +167,6 @@ class OnboardingSignUpViewController: UIViewController {
     func setupViews() {
         view.backgroundColor = .systemBackground
             
-        // 1. Add subviews
         mainStackView.addArrangedSubview(imageView)
         mainStackView.addArrangedSubview(headingLabel)
         mainStackView.addArrangedSubview(fullNameInput)
@@ -178,9 +177,7 @@ class OnboardingSignUpViewController: UIViewController {
         mainStackView.addArrangedSubview(loginLabel)
         view.addSubview(mainStackView)
 
-        // 2. Define ALL constraints in an array
             
-        // Save the top constraint for later manipulation
         originalStackViewTopConstraint = mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 10)
             
         let constraints: [NSLayoutConstraint] = [
@@ -189,17 +186,11 @@ class OnboardingSignUpViewController: UIViewController {
             originalStackViewTopConstraint!, // Now we include the saved constraint here
             mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-            // imageView Constraints
-            // NOTE: Since the imageView is in a UIStackView, setting a fixed size is often done
-            // with a width/height constraint or by configuring its `contentHuggingPriority`/`compressionResistancePriority`.
-            // Given the existing setup, we keep the fixed size constraints as requested.
+
             imageView.heightAnchor.constraint(equalToConstant: 400),
-            // The width constraint is somewhat redundant in a stack view with horizontal constraints,
-            // but is kept for fidelity to the original logic.
+
             imageView.widthAnchor.constraint(equalToConstant: 400),
                 
-            // Element Height Constraints
             headingLabel.heightAnchor.constraint(equalToConstant: 40),
             fullNameInput.heightAnchor.constraint(equalToConstant: 40),
             emailInput.heightAnchor.constraint(equalToConstant: 40),
@@ -207,21 +198,16 @@ class OnboardingSignUpViewController: UIViewController {
             confirmPasswordInput.heightAnchor.constraint(equalToConstant: 40),
             button.heightAnchor.constraint(equalToConstant: 40),
                 
-            // Button Top Spacing Constraint (was previously relative to confirmPasswordInput)
             button.topAnchor.constraint(equalTo: confirmPasswordInput.bottomAnchor, constant: 40),
                 
-            // loginLabel Constraints
             loginLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            // The constraint to `button.bottomAnchor` is now handled by the custom spacing below
-            // loginLabel.topAnchor.constraint(equalTo: button.bottomAnchor, constant: 30),
+
         ]
             
-            // 3. Activate all constraints only once
         NSLayoutConstraint.activate(constraints)
             
-        // 4. Set custom spacing (this is separate from constraints activation)
         mainStackView.setCustomSpacing(50, after: button)
-        mainStackView.setCustomSpacing(30, after: button) // Changed from 50 to 30 to match the original loginLabel.topAnchor constraint logic.
+        mainStackView.setCustomSpacing(30, after: button)
     }
 }
 
