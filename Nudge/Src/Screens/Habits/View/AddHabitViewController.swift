@@ -11,11 +11,14 @@ final class AddHabitViewController: UIViewController {
 
     private var habitLabel: String = ""
     private var selectedTime: Date = Date()
+    private var selectedLocation: UserSelectedLocation?
 
     private var labelRow: UIControl { labelRowPair.0 }
     private var labelValueLabel: UILabel { labelRowPair.1 }
 
     private var locationRow: UIControl { locationRowPair.0 }
+    private var locationValueLabel: UILabel { locationRowPair.1 }
+
     private var soundRow: UIControl { soundRowPair.0 }
     private var repeatRow: UIControl { repeatRowPair.0 }
 
@@ -231,7 +234,17 @@ final class AddHabitViewController: UIViewController {
 
 
     @objc private func locationTapped() {
-        print("Location tapped")
+        let mapVC = MapViewController()
+
+        mapVC.onLocationSelected = { [weak self] location in
+            self?.selectedLocation = location
+            self?.locationValueLabel.text = "Location selected"
+            self?.locationValueLabel.textColor = .label
+
+            print("Received location:", location.latitude, location.longitude)
+        }
+        mapVC.config(selectedLocation: self.selectedLocation)
+        navigationController?.pushViewController(mapVC, animated: true)
     }
 
     @objc private func soundTapped() {
