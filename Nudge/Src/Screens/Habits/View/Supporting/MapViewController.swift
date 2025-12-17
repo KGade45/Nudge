@@ -23,10 +23,10 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     // MARK: - Properties
 
     private let mapView = MKMapView()
-    private let locationService = LocationService()
     let annotation = MKPointAnnotation()
 
     private var selectedLocation: UserSelectedLocation?
+    private var hasZoomedToUserLocation = false
 
     // MARK: - Lifecycle
 
@@ -36,11 +36,13 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         setupMap()
         setupLocation()
         setupLongPress()
+
+        LocationService.shared.requestPermission()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let selectedLocation {
+        if let selectedLocation = selectedLocation {
             let coordinate = CLLocationCoordinate2D(
                 latitude: selectedLocation.latitude,
                 longitude: selectedLocation.longitude
@@ -50,12 +52,12 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
                 latitudinalMeters: 1000,
                 longitudinalMeters: 1000
             )
-            mapView.setRegion(region, animated: true)
+            mapView.setRegion(region, animated: false)
+
             annotation.coordinate = coordinate
             annotation.title = "Selected Location"
             mapView.addAnnotation(annotation)
         }
-
     }
 
     // MARK: - Setup
@@ -80,15 +82,20 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     }
 
     private func setupLocation() {
-        locationService.onLocationUpdate = { [weak self] location in
+        LocationService.shared.onLocationUpdate = { [weak self] location in
+            guard let self = self else { return }
+            if self.selectedLocation != nil { return }
+            if self.hasZoomedToUserLocation { return }
+            
             let region = MKCoordinateRegion(
                 center: location.coordinate,
                 latitudinalMeters: 1000,
                 longitudinalMeters: 1000
             )
-            self?.mapView.setRegion(region, animated: true)
+            self.mapView.setRegion(region, animated: true)
+            self.hasZoomedToUserLocation = true
+            LocationService.shared.stopUpdatingLocation()
         }
-        locationService.requestPermission()
     }
 
     private func setupLongPress() {

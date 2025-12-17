@@ -10,19 +10,30 @@ import CoreLocation
 
 final class LocationService: NSObject {
 
+    public static let shared = LocationService()
     private let locationManager = CLLocationManager()
     var onLocationUpdate: ((CLLocation) -> Void)?
     
-    override init() {
+    private override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
-    func requestPermission(){
-        locationManager.requestWhenInUseAuthorization()
+    func requestPermission() {
+        let status = locationManager.authorizationStatus
+        
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            startUpdatingLocation()
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .denied, .restricted:
+            print("Location permission denied")
+        @unknown default:
+            break
+        }
     }
-
     func startUpdatingLocation(){
         locationManager.startUpdatingLocation()
     }
