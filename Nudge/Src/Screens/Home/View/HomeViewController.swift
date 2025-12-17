@@ -11,7 +11,6 @@ class HomeViewController: UIViewController {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Good evening!"
         label.font = UIFont(name: "Nunito-Bold", size: 34)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -29,9 +28,17 @@ class HomeViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
+    private var gradientLayer: GradientView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        titleLabel.text = "Good \(timeOfDay())!!"
+        
+        gradientLayer = GradientView(view: view, primaryColor: primaryColor(), secondaryColor: UIColor.systemBackground)
+        view.layer.insertSublayer(gradientLayer.getGradientLayer(), at: 0)
+        collectionView.backgroundColor = .clear
 
         view.addSubview(titleLabel)
         view.addSubview(collectionView)
@@ -49,6 +56,36 @@ class HomeViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    func timeOfDay() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+
+        switch hour {
+        case 5..<12:
+            return "Morning"
+        case 12..<17:
+            return "Afternoon"
+        case 17..<21:
+            return "Evening"
+        default:
+            return "Night"
+        }
+    }
+    
+    func primaryColor() -> UIColor {
+        let hour = Calendar.current.component(.hour, from: Date())
+
+        switch hour {
+        case 5..<12:
+            return UIColor.systemYellow
+        case 12..<17:
+            return UIColor.systemOrange
+        case 17..<21:
+            return UIColor.systemGray
+        default:
+            return UIColor.systemBlue
+        }
     }
 }
 
