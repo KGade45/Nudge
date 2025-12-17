@@ -113,6 +113,7 @@ class OnboardingViewController: UIViewController {
     }
 
     // MARK: - Keyboard Notifications
+
     func setupKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -148,6 +149,7 @@ class OnboardingViewController: UIViewController {
     }
 
     // MARK: - Forgot Password Action
+
     @objc func forgotPasswordTapped() {
         // Visual feedback on tapping "Forgot password"
         UIView.animate(withDuration: 0.1, animations: {
@@ -161,11 +163,13 @@ class OnboardingViewController: UIViewController {
     }
 
     // MARK: - Sign Up Action
+
     @objc func signUpTapped() {
         print("Sign Up tapped")
     }
 
     // MARK: - Setup Views
+
     func setupViews() {
         view.backgroundColor = .white
         mainStackView.addArrangedSubview(imageView)

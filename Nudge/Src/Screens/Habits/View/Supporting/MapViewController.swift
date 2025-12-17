@@ -17,9 +17,11 @@ struct UserSelectedLocation {
 final class MapViewController: UIViewController, MKMapViewDelegate {
 
     // MARK: - Public callback
+
     var onLocationSelected: ((UserSelectedLocation) -> Void)?
 
     // MARK: - Properties
+
     private let mapView = MKMapView()
     private let locationService = LocationService()
     let annotation = MKPointAnnotation()
@@ -27,6 +29,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     private var selectedLocation: UserSelectedLocation?
 
     // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -98,6 +101,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     }
 
     // MARK: - Actions
+
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .began else { return }
 
