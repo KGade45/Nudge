@@ -10,6 +10,7 @@ import UIKit
 class ProfileViewController: UIViewController {
 
     // MARK: - Data Model
+
     private let sectionsData: [[(name: String, info: String)]] = [
         [("Wake-up Time", "7:30 AM"),
          ("Work Start Time", "10:00 AM"),
@@ -41,6 +42,7 @@ class ProfileViewController: UIViewController {
     }()
 
     // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGroupedBackground
@@ -64,6 +66,7 @@ class ProfileViewController: UIViewController {
 }
 
 // MARK: - TableView Delegate & DataSource
+
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -84,6 +87,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     // MARK: - Section Headers
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView()
         let label = UILabel()
@@ -110,6 +114,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 // MARK: - Actions Delegate
+
 extension ProfileViewController: SectionContainerCellDelegate {
     func didTapItem(in section: Int, itemIndex: Int) {
         let item = sectionsData[section][itemIndex]

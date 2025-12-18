@@ -11,6 +11,7 @@ import SwiftUI
 class ProgressViewController: UIViewController {
 
     // MARK: - UI Elements
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Progress"
@@ -31,6 +32,7 @@ class ProgressViewController: UIViewController {
     private var dashboardHostingController: UIHostingController<ProgressDashboardView>?
 
     // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -45,6 +47,7 @@ class ProgressViewController: UIViewController {
     }
 
     // MARK: - Setup
+
     private func setupUI() {
         view.addSubview(titleLabel)
         view.addSubview(segmentedView)
@@ -82,6 +85,7 @@ class ProgressViewController: UIViewController {
     }
 
     // MARK: - Logic
+
     @objc private func segmentedChanged() {
         updateDashboard(segmentIndex: segmentedView.selectedSegmentIndex)
     }

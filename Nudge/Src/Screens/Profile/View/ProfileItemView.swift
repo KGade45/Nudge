@@ -16,6 +16,7 @@ class ProfileItemView: UIView {
     weak var delegate: ProfileItemViewDelegate?
 
     // MARK: - Subviews
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
@@ -50,6 +51,7 @@ class ProfileItemView: UIView {
     }()
 
     // MARK: - Init
+
     init() {
         super.init(frame: .zero)
         setupLayout()

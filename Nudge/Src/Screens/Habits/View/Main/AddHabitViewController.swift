@@ -5,17 +5,21 @@
 //  Created by Kaustubh kailas gade on 09/12/25.
 //
 
+import CoreLocation
 import UIKit
 
 final class AddHabitViewController: UIViewController {
 
     private var habitLabel: String = ""
     private var selectedTime: Date = Date()
+    private var selectedLocation: UserSelectedLocation?
 
     private var labelRow: UIControl { labelRowPair.0 }
     private var labelValueLabel: UILabel { labelRowPair.1 }
 
     private var locationRow: UIControl { locationRowPair.0 }
+    private var locationValueLabel: UILabel { locationRowPair.1 }
+
     private var soundRow: UIControl { soundRowPair.0 }
     private var repeatRow: UIControl { repeatRowPair.0 }
 
@@ -231,7 +235,25 @@ final class AddHabitViewController: UIViewController {
 
 
     @objc private func locationTapped() {
-        print("Location tapped")
+        let mapVC = MapViewController()
+
+        mapVC.onLocationSelected = { [weak self] location in
+            guard let self = self else { return }
+            self.selectedLocation = location
+            self.locationValueLabel.text = "Location selected"
+            self.locationValueLabel.textColor = .label
+            let coordinates = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+            self.reverseGeocode(coordinate: coordinates) { place in
+                DispatchQueue.main.async {
+                    if let place = place {
+                        self.locationValueLabel.text = place
+                        self.locationValueLabel.textColor = .label
+                    }
+                }
+            }
+        }
+        mapVC.config(selectedLocation: self.selectedLocation)
+        navigationController?.pushViewController(mapVC, animated: true)
     }
 
     @objc private func soundTapped() {
@@ -290,9 +312,17 @@ final class AddHabitViewController: UIViewController {
 
         let rightLabel = UILabel()
         rightLabel.text = right
-        rightLabel.font = .systemFont(ofSize: 17)
+        rightLabel.font = .systemFont(ofSize: 15)
         rightLabel.textColor = .secondaryLabel
+        rightLabel.numberOfLines = 1
+        rightLabel.lineBreakMode = .byTruncatingTail
         rightLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        leftLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        rightLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        leftLabel.setContentHuggingPriority(.required, for: .horizontal)
+        rightLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
         let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
         chevron.tintColor = .tertiaryLabel
@@ -310,7 +340,8 @@ final class AddHabitViewController: UIViewController {
             chevron.centerYAnchor.constraint(equalTo: control.centerYAnchor),
 
             rightLabel.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -8),
-            rightLabel.centerYAnchor.constraint(equalTo: control.centerYAnchor)
+            rightLabel.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            rightLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leftLabel.trailingAnchor, constant: 16)
         ])
 
         return (control, rightLabel)
@@ -334,4 +365,33 @@ final class AddHabitViewController: UIViewController {
             row.heightAnchor.constraint(equalToConstant: 56)
         ])
     }
+
+    func reverseGeocode(
+        coordinate: CLLocationCoordinate2D,
+        completion: @escaping (String?) -> Void
+    ) {
+        let geocoder = CLGeocoder()
+        let location = CLLocation(
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude
+        )
+
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            if let placemark = placemarks?.first {
+                let address = [
+                    placemark.name,
+                    placemark.locality,
+                    placemark.administrativeArea,
+                    placemark.country
+                ]
+                .compactMap { $0 }
+                .joined(separator: ", ")
+
+                completion(address)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+
 }
