@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BBE69E202EF7F0350086E03D /* NudgeDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBE69E1E2EF7F0350086E03D /* NudgeDataModel.xcdatamodeld */; };
+		BBE69E232EF7F0A10086E03D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE69E222EF7F0A10086E03D /* CoreData.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		BB15E55A2EE207BD00B4E33B /* Nudge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nudge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBE69E1F2EF7F0350086E03D /* NudgeDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NudgeDataModel.xcdatamodel; sourceTree = "<group>"; };
+		BBE69E222EF7F0A10086E03D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBE69E232EF7F0A10086E03D /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,7 +53,9 @@
 		BB15E5512EE207BD00B4E33B = {
 			isa = PBXGroup;
 			children = (
+				BBE69E1E2EF7F0350086E03D /* NudgeDataModel.xcdatamodeld */,
 				BB15E55C2EE207BD00B4E33B /* Nudge */,
+				BBE69E212EF7F0A10086E03D /* Frameworks */,
 				BB15E55B2EE207BD00B4E33B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +66,14 @@
 				BB15E55A2EE207BD00B4E33B /* Nudge.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BBE69E212EF7F0A10086E03D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BBE69E222EF7F0A10086E03D /* CoreData.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -132,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBE69E202EF7F0350086E03D /* NudgeDataModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +358,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		BBE69E1E2EF7F0350086E03D /* NudgeDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BBE69E1F2EF7F0350086E03D /* NudgeDataModel.xcdatamodel */,
+			);
+			currentVersion = BBE69E1F2EF7F0350086E03D /* NudgeDataModel.xcdatamodel */;
+			path = NudgeDataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = BB15E5522EE207BD00B4E33B /* Project object */;
 }
