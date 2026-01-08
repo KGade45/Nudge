@@ -100,6 +100,43 @@ class HomeCollectionViewCell: UICollectionViewCell {
         ])
     }
 
+    func configure(with habit: HabitModel) {
+        titleLabel.text = habit.title
+
+        let isCompletedToday: Bool = {
+            guard let lastCompleted = habit.lastCompletedAt else { return false }
+            return Calendar.current.isDateInToday(lastCompleted)
+        }()
+
+        checkmark.isHidden = !isCompletedToday
+
+        // Capsule (time of day)
+        let hour = habit.preferredStartHour
+        let capsuleTitle: String
+        let capsuleColor: UIColor
+
+        switch hour {
+        case 5..<12:
+            capsuleTitle = "Morning"
+            capsuleColor = .systemOrange
+        case 12..<17:
+            capsuleTitle = "Afternoon"
+            capsuleColor = .systemBlue
+        case 17..<22:
+            capsuleTitle = "Evening"
+            capsuleColor = .systemPurple
+        default:
+            capsuleTitle = "Night"
+            capsuleColor = .systemGray
+        }
+
+        capsuleView.config(title: capsuleTitle, color: capsuleColor)
+
+        statusLabel.text = isCompletedToday
+            ? "Completed for today 🎉"
+            : "Pending for today"
+    }
+
     private func setupShadow() {
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.1

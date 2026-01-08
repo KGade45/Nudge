@@ -16,9 +16,57 @@ final class HabitRepository {
         self.context = context
     }
 
+    func scheduleNotifications(for habit: HabitModel) {
+        let hasTimeTrigger = habit.triggers.contains {
+            $0.type == .time
+        }
+
+        guard hasTimeTrigger else { return }
+
+        NotificationManager.shared.scheduleTimeNotification(
+            habitId: habit.id,
+            title: "Nudge",
+            body: "Time for \(habit.title)",
+            hour: habit.preferredStartHour
+        )
+    }
+
+    func markHabitCompleted(_ habit: HabitModel) {
+        let request: NSFetchRequest<Habit> = Habit.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", habit.id as CVarArg)
+
+        do {
+            guard let habitEntity = try context.fetch(request).first else { return }
+
+            habitEntity.lastCompletedAt = Date()
+
+            let calendar = Calendar.current
+
+            if let lastCompleted = habitEntity.lastCompletedAt,
+               calendar.isDateInToday(lastCompleted) {
+                return
+            }
+            // Create Completion entity
+            let completion = Completion(context: context)
+            completion.id = UUID()
+            completion.completedAt = Date()
+            completion.habit = habitEntity
+
+            PersistenceManager.shared.saveContext()
+
+            // Cancel future notifications
+            NotificationManager.shared.cancelNotification(for: habit.id)
+
+        } catch {
+            assertionFailure("Failed to mark habit completed: \(error)")
+        }
+    }
+
+
     func add(habit: HabitModel) {
         _ = Habit(from: habit, context: context)
         PersistenceManager.shared.saveContext()
+        scheduleNotifications(for: habit)
     }
 
     func fetchAll() -> [HabitModel] {

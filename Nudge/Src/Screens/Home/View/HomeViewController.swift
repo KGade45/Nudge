@@ -9,6 +9,14 @@ import UIKit
 
 class HomeViewController: UIViewController {
 
+    private let habitRepository = HabitRepository()
+    private var habits: [HabitModel] = []
+
+    private func loadHabits() {
+        habits = habitRepository.fetchAll()
+        collectionView.reloadData()
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Good evening!"
@@ -37,8 +45,15 @@ class HomeViewController: UIViewController {
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
+        activateConstraints()
+    }
 
-//        TODO: - Add seperate method for constraints
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadHabits()
+    }
+
+    func activateConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -55,13 +70,21 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        10
+        habits.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HomeCollectionViewCell.identifier, for: indexPath) as? HomeCollectionViewCell else {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: HomeCollectionViewCell.identifier,
+            for: indexPath
+        ) as? HomeCollectionViewCell else {
             return UICollectionViewCell()
         }
+
+        let habit = habits[indexPath.item]
+        cell.configure(with: habit)
 
         return cell
     }
@@ -77,4 +100,9 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         return CGSize(width: availableWidth, height: height)
     }
 
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let habit = habits[indexPath.item]
+        habitRepository.markHabitCompleted(habit)
+        loadHabits()
+    }
 }

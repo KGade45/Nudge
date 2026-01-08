@@ -21,7 +21,9 @@ extension Habit {
             isActive: self.isActive,
             preferredStartHour: Int(self.preferredStartHour),
             preferredEndHour: Int(self.preferredEndHour),
-            lastCompletedAt: self.lastCompletedAt)
+            lastCompletedAt: self.lastCompletedAt,
+            triggers: (self.triggers as? Set<Trigger>)?
+                        .map { $0.toTriggerModel } ?? [] )
     }
     /// Convenience initializer to map from HabitModel to Core Data Habit
     convenience init(from model: HabitModel, context: NSManagedObjectContext) {
@@ -33,5 +35,11 @@ extension Habit {
         self.lastCompletedAt = model.lastCompletedAt
         self.preferredEndHour = Int16(model.preferredEndHour)
         self.preferredStartHour = Int16(model.preferredStartHour)
+        // Create triggers
+        model.triggers.forEach { triggerModel in
+            _ = Trigger(from: triggerModel,
+                        habit: self,
+                        context: context)
+        }
     }
 }
