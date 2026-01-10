@@ -17,7 +17,7 @@ struct TriggerModel: Codable {
     let id: UUID
     let type: TriggerType
 
-    // Time-based trigger fields
-    let startHour: Int
-    let endHour: Int
+    // Time trigger
+    let hour: Int
+    let minute: Int
 }

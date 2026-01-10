@@ -10,6 +10,8 @@ import SwiftUI
 
 class ProgressViewController: UIViewController {
 
+    private let progressRepository = ProgressRepository()
+
     // MARK: - UI Elements
 
     private let titleLabel: UILabel = {
@@ -92,39 +94,21 @@ class ProgressViewController: UIViewController {
 
     private func updateDashboard(segmentIndex: Int) {
         if segmentIndex == 0 {
-            // WEEKLY DATA
-            let data = [
-                ChartData(uniqueDay: "Sun", displayLabel: "S", value: 20),
-                ChartData(uniqueDay: "Mon", displayLabel: "M", value: 35),
-                ChartData(uniqueDay: "Tue", displayLabel: "T", value: 30),
-                ChartData(uniqueDay: "Wed", displayLabel: "W", value: 22),
-                ChartData(uniqueDay: "Thu", displayLabel: "T", value: 45),
-                ChartData(uniqueDay: "Fri", displayLabel: "F", value: 16),
-                ChartData(uniqueDay: "Sat", displayLabel: "S", value: 28)
-            ]
-            
-            // Update Dashboard with Weekly Data & 75% Completion
+            let result = progressRepository.weeklyProgress()
+
             dashboardHostingController?.rootView = ProgressDashboardView(
                 title: "Weekly Summary",
-                chartData: data,
-                completionRate: 0.75
+                chartData: result.chart,
+                completionRate: result.completionRate
             )
 
         } else {
-            // MONTHLY DATA
-            let rawValues = [40, 55, 70, 30, 90, 60, 45, 88, 73, 54, 66, 41]
-            let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            let result = progressRepository.monthlyProgress()
 
-            var data: [ChartData] = []
-            for (i, val) in rawValues.enumerated() {
-                data.append(ChartData(uniqueDay: months[i], displayLabel: months[i], value: Double(val)))
-            }
-
-            // Update Dashboard with Monthly Data & 62% Completion
             dashboardHostingController?.rootView = ProgressDashboardView(
                 title: "Monthly Summary",
-                chartData: data,
-                completionRate: 0.62
+                chartData: result.chart,
+                completionRate: result.completionRate
             )
         }
     }

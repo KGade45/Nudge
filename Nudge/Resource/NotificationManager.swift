@@ -19,7 +19,8 @@ final class NotificationManager {
         habitId: UUID,
         title: String,
         body: String,
-        hour: Int
+        hour: Int,
+        minute: Int
     ) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -28,7 +29,7 @@ final class NotificationManager {
 
         var components = DateComponents()
         components.hour = hour
-        components.minute = 0
+        components.minute = minute
 
         let trigger = UNCalendarNotificationTrigger(
             dateMatching: components,
@@ -46,7 +47,6 @@ final class NotificationManager {
         UNUserNotificationCenter.current().add(request)
     }
 
-    
     func cancelNotification(for habitId: UUID) {
         center.removePendingNotificationRequests(
             withIdentifiers: ["habit-\(habitId.uuidString)"]
