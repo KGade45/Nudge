@@ -318,7 +318,6 @@ final class AddHabitViewController: UIViewController {
 
         var triggers: [TriggerModel] = []
 
-        // ✅ Time trigger (always present)
         let timeTrigger = TriggerModel(
             id: UUID(),
             type: .time,
