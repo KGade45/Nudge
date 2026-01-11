@@ -11,38 +11,84 @@ internal import CoreData
 extension Trigger {
 
     var toTriggerModel: TriggerModel {
-        TriggerModel(
+
+        let triggerType = TriggerModel.TriggerType(
+            rawValue: self.type ?? ""
+        ) ?? .time
+
+        let latitude: Double? =
+            triggerType == .location ? self.latitude?.doubleValue : nil
+
+        let longitude: Double? =
+            triggerType == .location ? self.longitude?.doubleValue : nil
+
+        let radius: Double? =
+            triggerType == .location ? self.radius?.doubleValue : nil
+
+        let locationName: String? =
+            triggerType == .location ? self.locationName : nil
+
+        return TriggerModel(
             id: self.id ?? {
                 assertionFailure("Trigger id should never be nil")
                 return UUID()
             }(),
-            type: TriggerModel.TriggerType(
-                rawValue: self.type ?? ""
-            ) ?? .time,
-            hour: 0,
-            minute: 0
+            type: triggerType,
+
+            // Time trigger
+            hour: triggerType == .time ? Int(self.hour) : 0,
+            minute: triggerType == .time ? Int(self.minute) : 0,
+
+            // Location trigger
+            latitude: latitude,
+            longitude: longitude,
+            radius: radius,
+            locationName: locationName,
+
+            // Inactivity trigger
+            inactivityHours: triggerType == .inactivity
+                ? Int(self.inactivityHours)
+                : 0
         )
     }
+}
 
-    convenience init(from model: TriggerModel,
-                     habit: Habit,
-                     context: NSManagedObjectContext) {
+extension Trigger {
+
+    convenience init(
+        from model: TriggerModel,
+        habit: Habit,
+        context: NSManagedObjectContext
+    ) {
         self.init(context: context)
 
         self.id = model.id
         self.type = model.type.rawValue
+        self.habit = habit
 
-        // Time-based trigger
-        self.hour = Int16(model.hour)
-        self.minute = Int16(model.minute)
-
-        // Clear unused fields
-        self.inactivityHours = 0
+        // Reset everything first
+        self.hour = 0
+        self.minute = 0
         self.latitude = nil
         self.longitude = nil
         self.radius = nil
         self.locationName = nil
+        self.inactivityHours = 0
 
-        self.habit = habit
+        switch model.type {
+
+        case .time:
+            self.hour = Int16(model.hour)
+            self.minute = Int16(model.minute)
+
+        case .location:
+            self.latitude = model.latitude as NSNumber?
+            self.longitude = model.longitude as NSNumber?
+            self.radius = model.radius as NSNumber? ?? 150
+            self.locationName = model.locationName
+
+        case .inactivity:
+            self.inactivityHours = Int16(model.inactivityHours)
+        }
     }
 }

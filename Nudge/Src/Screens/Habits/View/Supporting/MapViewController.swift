@@ -9,9 +9,19 @@ import CoreLocation
 import MapKit
 import UIKit
 
-struct UserSelectedLocation {
+struct UserSelectedLocation: Codable {
     let latitude: Double
     let longitude: Double
+    let radius: Double
+    let name: String
+    let category: LocationCategory
+}
+
+enum LocationCategory: String, Codable, CaseIterable {
+    case home
+    case office
+    case gym
+    case custom
 }
 
 final class MapViewController: UIViewController, MKMapViewDelegate {
@@ -117,7 +127,10 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
 
         selectedLocation = UserSelectedLocation(
             latitude: coordinate.latitude,
-            longitude: coordinate.longitude
+            longitude: coordinate.longitude,
+            radius: 150,
+            name: "Selected Location",
+            category: .custom
         )
 
         mapView.removeAnnotations(mapView.annotations)

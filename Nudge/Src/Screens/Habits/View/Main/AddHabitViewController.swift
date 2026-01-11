@@ -278,8 +278,19 @@ final class AddHabitViewController: UIViewController {
         let timeTrigger = TriggerModel(
             id: UUID(),
             type: .time,
+
+            // Time
             hour: hour,
-            minute: minute
+            minute: minute,
+
+            // Location (not applicable)
+            latitude: nil,
+            longitude: nil,
+            radius: nil,
+            locationName: nil,
+
+            // Inactivity (not applicable)
+            inactivityHours: 0
         )
 
         let habit = HabitModel(
