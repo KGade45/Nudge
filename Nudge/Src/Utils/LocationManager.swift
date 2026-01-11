@@ -18,10 +18,7 @@ final class LocationManager: NSObject {
         super.init()
         manager.delegate = self
         manager.requestAlwaysAuthorization()
-        manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.startUpdatingLocation()
     }
-
 
     func isUserInsideLocation(trigger: TriggerModel) -> Bool {
         guard

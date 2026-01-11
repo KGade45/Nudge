@@ -121,9 +121,10 @@ class HomeCollectionViewCell: UICollectionViewCell {
         formatter.dateFormat = "h:mm a"
 
         let today = Date()
+        let timeTrigger = habit.triggers.first { $0.type == .time }
         var components = Calendar.current.dateComponents([.hour, .minute], from: today)
         components.hour = habit.preferredStartHour
-        components.minute = 0
+        components.minute = timeTrigger?.minute ?? 0
 
         if let date = Calendar.current.date(from: components) {
             timeLabel.text = formatter.string(from: date)
