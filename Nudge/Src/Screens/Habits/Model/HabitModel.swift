@@ -15,6 +15,8 @@ struct HabitModel: Codable {
     let preferredStartHour: Int
     let preferredEndHour: Int
     let lastCompletedAt: Date?
+    let sound: NotificationSound
+    let repeatRule: RepeatRule
 
     let triggers: [TriggerModel]
 }

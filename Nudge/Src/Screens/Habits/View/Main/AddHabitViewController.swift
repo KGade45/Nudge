@@ -5,8 +5,14 @@
 //  Created by Kaustubh kailas gade on 09/12/25.
 //
 
-import CoreLocation
+internal import CoreLocation
 import UIKit
+
+enum RepeatRule: String, CaseIterable, Codable {
+    case everyday = "Every Day"
+    case weekdays = "Weekdays"
+    case weekends = "Weekends"
+}
 
 final class AddHabitViewController: UIViewController {
 
@@ -23,6 +29,9 @@ final class AddHabitViewController: UIViewController {
 
     private var soundRow: UIControl { soundRowPair.0 }
     private var repeatRow: UIControl { repeatRowPair.0 }
+
+    private var selectedSound: NotificationSound = .default
+    private var selectedRepeat: RepeatRule = .everyday
 
     private let habitRepository = HabitRepository()
 
@@ -69,16 +78,15 @@ final class AddHabitViewController: UIViewController {
 
     private lazy var soundRowPair = makeRow(
         left: "Sound",
-        right: "Chirp",
+        right: selectedSound.displayName,
         action: #selector(soundTapped)
     )
 
     private lazy var repeatRowPair = makeRow(
         left: "Repeat",
-        right: "Weekdays",
+        right: selectedRepeat.rawValue,
         action: #selector(repeatTapped)
     )
-
 
     // MARK: - Lifecycle
 
@@ -261,12 +269,45 @@ final class AddHabitViewController: UIViewController {
     }
 
     @objc private func soundTapped() {
-        print("Sound tapped")
+        let alert = UIAlertController(
+            title: "Notification Sound",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        NotificationSound.allCases.forEach { sound in
+            alert.addAction(
+                UIAlertAction(title: sound.displayName, style: .default) { [weak self] _ in
+                    self?.selectedSound = sound
+                    self?.soundRowPair.1.text = sound.displayName
+                }
+            )
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
 
     @objc private func repeatTapped() {
-        print("Repeat tapped")
+        let alert = UIAlertController(
+            title: "Repeat",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        RepeatRule.allCases.forEach { rule in
+            alert.addAction(
+                UIAlertAction(title: rule.rawValue, style: .default) { [weak self] _ in
+                    self?.selectedRepeat = rule
+                    self?.repeatRowPair.1.text = rule.rawValue
+                }
+            )
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
+
 
     @objc private func saveTapped() {
         guard !habitLabel.isEmpty else { return }
@@ -275,23 +316,37 @@ final class AddHabitViewController: UIViewController {
         let hour = calendar.component(.hour, from: selectedTime)
         let minute = calendar.component(.minute, from: selectedTime)
 
+        var triggers: [TriggerModel] = []
+
+        // ✅ Time trigger (always present)
         let timeTrigger = TriggerModel(
             id: UUID(),
             type: .time,
-
-            // Time
             hour: hour,
             minute: minute,
-
-            // Location (not applicable)
             latitude: nil,
             longitude: nil,
             radius: nil,
             locationName: nil,
-
-            // Inactivity (not applicable)
             inactivityHours: 0
         )
+        triggers.append(timeTrigger)
+
+        // ✅ Optional location trigger
+        if let location = selectedLocation {
+            let locationTrigger = TriggerModel(
+                id: UUID(),
+                type: .location,
+                hour: 0,
+                minute: 0,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                radius: location.radius,
+                locationName: location.name,
+                inactivityHours: 0
+            )
+            triggers.append(locationTrigger)
+        }
 
         let habit = HabitModel(
             id: UUID(),
@@ -301,7 +356,9 @@ final class AddHabitViewController: UIViewController {
             preferredStartHour: hour,
             preferredEndHour: min(hour + 1, 23),
             lastCompletedAt: nil,
-            triggers: [timeTrigger]
+            sound: selectedSound,
+            repeatRule: selectedRepeat,
+            triggers: triggers
         )
 
         habitRepository.add(habit: habit)

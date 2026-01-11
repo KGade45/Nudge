@@ -22,9 +22,17 @@ extension Habit {
             preferredStartHour: Int(self.preferredStartHour),
             preferredEndHour: Int(self.preferredEndHour),
             lastCompletedAt: self.lastCompletedAt,
+            sound: NotificationSound(
+                rawValue: self.sound ?? NotificationSound.default.rawValue
+            ) ?? .default,
+            repeatRule: RepeatRule(
+                rawValue: self.repeatRule ?? RepeatRule.everyday.rawValue
+            ) ?? .everyday,
             triggers: (self.triggers as? Set<Trigger>)?
-                        .map { $0.toTriggerModel } ?? [] )
+                .map { $0.toTriggerModel } ?? []
+        )
     }
+
     /// Convenience initializer to map from HabitModel to Core Data Habit
     convenience init(from model: HabitModel, context: NSManagedObjectContext) {
         self.init(context: context)
@@ -35,6 +43,8 @@ extension Habit {
         self.lastCompletedAt = model.lastCompletedAt
         self.preferredEndHour = Int16(model.preferredEndHour)
         self.preferredStartHour = Int16(model.preferredStartHour)
+        self.sound = model.sound.rawValue
+        self.repeatRule = model.repeatRule.rawValue
         // Create triggers
         model.triggers.forEach { triggerModel in
             _ = Trigger(from: triggerModel,

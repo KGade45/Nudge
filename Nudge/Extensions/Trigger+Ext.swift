@@ -35,17 +35,17 @@ extension Trigger {
             }(),
             type: triggerType,
 
-            // Time trigger
+            // Time
             hour: triggerType == .time ? Int(self.hour) : 0,
             minute: triggerType == .time ? Int(self.minute) : 0,
 
-            // Location trigger
+            // Location
             latitude: latitude,
             longitude: longitude,
             radius: radius,
             locationName: locationName,
 
-            // Inactivity trigger
+            // Inactivity
             inactivityHours: triggerType == .inactivity
                 ? Int(self.inactivityHours)
                 : 0
@@ -66,7 +66,7 @@ extension Trigger {
         self.type = model.type.rawValue
         self.habit = habit
 
-        // Reset everything first
+        // Reset everything (VERY IMPORTANT)
         self.hour = 0
         self.minute = 0
         self.latitude = nil
@@ -82,9 +82,9 @@ extension Trigger {
             self.minute = Int16(model.minute)
 
         case .location:
-            self.latitude = model.latitude as NSNumber?
-            self.longitude = model.longitude as NSNumber?
-            self.radius = model.radius as NSNumber? ?? 150
+            self.latitude = model.latitude.map { NSNumber(value: $0) }
+            self.longitude = model.longitude.map { NSNumber(value: $0) }
+            self.radius = NSNumber(value: model.radius ?? 150)
             self.locationName = model.locationName
 
         case .inactivity:

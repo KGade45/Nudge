@@ -5,7 +5,7 @@
 //  Created by Kaustubh kailas gade on 09/12/25.
 //
 
-import CoreLocation
+internal import CoreLocation
 import UIKit
 
 class ProfileViewController: UIViewController {

@@ -27,8 +27,35 @@ final class HabitRepository {
             habitId: habit.id,
             title: "Nudge",
             body: "Time for \(habit.title)",
-            hour: timeTrigger.hour,
-            minute: timeTrigger.minute
+            hour: timeTrigger.hour ?? 0,
+            minute: timeTrigger.minute ?? 0, sound: habit.sound
+        )
+    }
+
+    func scheduleTimeNotificationWithLocationCheck(habit: HabitModel) {
+
+        guard let locationTrigger = habit.triggers.first(where: { $0.type == .location }) else {
+            return
+        }
+
+        let isAtLocation = LocationManager.shared
+            .isUserInsideLocation(trigger: locationTrigger)
+
+        let body: String
+
+        if isAtLocation {
+            body = "You're at the right place to \(habit.title)"
+        } else {
+            body = "It's time for \(habit.title). Go to \(locationTrigger.locationName ?? "the selected place")"
+        }
+
+        NotificationManager.shared.scheduleTimeNotification(
+            habitId: habit.id,
+            title: "Nudge",
+            body: body,
+            hour: habit.preferredStartHour,
+            minute: habit.triggers.first(where: { $0.type == .time })?.minute ?? 0,
+            sound: habit.sound
         )
     }
 
@@ -63,7 +90,42 @@ final class HabitRepository {
     func add(habit: HabitModel) {
         _ = Habit(from: habit, context: context)
         PersistenceManager.shared.saveContext()
-        scheduleNotifications(for: habit)
+
+        if let timeTrigger = habit.triggers.first(where: { $0.type == .time }) {
+
+            NotificationManager.shared.scheduleRepeatNotifications(
+                habit: habit,
+                title: "Nudge",
+                body: timeNotificationBody(for: habit),
+                hour: timeTrigger.hour ?? habit.preferredStartHour,
+                minute: timeTrigger.minute ?? 0
+            )
+        }
+
+        habit.triggers
+            .filter { $0.type == .location }
+            .forEach {
+                LocationManager.shared.registerGeofence(
+                    trigger: $0,
+                    habitId: habit.id
+                )
+            }
+    }
+
+    private func timeNotificationBody(for habit: HabitModel) -> String {
+        guard let locationTrigger = habit.triggers.first(where: { $0.type == .location }) else {
+            return "Time for \(habit.title)"
+        }
+
+        let isAtLocation = LocationManager.shared
+            .isUserInsideLocation(trigger: locationTrigger)
+
+        if isAtLocation {
+            return "You're at the right place to \(habit.title)"
+        } else {
+            let place = locationTrigger.locationName ?? "the selected place"
+            return "It's time for \(habit.title). Go to \(place)."
+        }
     }
 
     func fetchAll() -> [HabitModel] {
