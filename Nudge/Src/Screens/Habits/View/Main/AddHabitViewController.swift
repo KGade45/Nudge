@@ -332,7 +332,6 @@ final class AddHabitViewController: UIViewController {
         )
         triggers.append(timeTrigger)
 
-        // ✅ Optional location trigger
         if let location = selectedLocation {
             let locationTrigger = TriggerModel(
                 id: UUID(),
