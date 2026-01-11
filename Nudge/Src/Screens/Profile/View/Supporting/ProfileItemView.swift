@@ -22,6 +22,8 @@ class ProfileItemView: UIView {
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .horizontal)
         return label
     }()
 
@@ -30,7 +32,11 @@ class ProfileItemView: UIView {
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .right
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
     
@@ -83,6 +89,7 @@ class ProfileItemView: UIView {
             chevronImageView.heightAnchor.constraint(equalToConstant: 16),
             
             // Value: To the left of Chevron
+            valueLabel.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 12),
             valueLabel.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -8),
             valueLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             

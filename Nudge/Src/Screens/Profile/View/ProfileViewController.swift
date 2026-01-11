@@ -185,13 +185,11 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
 
     private func handleLocationTap(index: Int) {
-
-        
         let mapVC = MapViewController()
 
         mapVC.onLocationSelected = { [weak self] location in
             guard let self else { return }
-            
+
             let coord = CLLocationCoordinate2D(
                 latitude: location.latitude,
                 longitude: location.longitude
@@ -199,6 +197,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
             self.reverseGeocode(coordinate: coord) { place in
                 DispatchQueue.main.async {
+
                     let finalLocation = UserSelectedLocation(
                         latitude: location.latitude,
                         longitude: location.longitude,
@@ -209,27 +208,22 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
                     if index == 0 {
                         self.settings.homeLocation = finalLocation
+                        LocationManager.shared.registerProfileGeofence(
+                            location: finalLocation,
+                            identifier: "profile.home"
+                        )
                     } else {
                         self.settings.officeLocation = finalLocation
+                        LocationManager.shared.registerProfileGeofence(
+                            location: finalLocation,
+                            identifier: "profile.office"
+                        )
                     }
 
                     ProfileSettingsStore.shared.save(self.settings)
                     self.tableView.reloadData()
                 }
             }
-        }
-
-        mapVC.onLocationSelected = { [weak self] location in
-            guard let self else { return }
-
-            if index == 0 {
-                self.settings.homeLocation = location
-            } else {
-                self.settings.officeLocation = location
-            }
-
-            ProfileSettingsStore.shared.save(self.settings)
-            self.tableView.reloadData()
         }
 
         navigationController?.pushViewController(mapVC, animated: true)

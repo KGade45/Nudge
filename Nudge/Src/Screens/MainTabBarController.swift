@@ -11,7 +11,6 @@ class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let habitRepository = HabitRepository()
         let homeVC = UINavigationController(rootViewController: HomeViewController())
         homeVC.tabBarItem = UITabBarItem(title: "Home",
                                          image: UIImage(systemName: "house"),
@@ -34,9 +33,6 @@ class MainTabBarController: UITabBarController {
 
         viewControllers = [homeVC, addVC, progressVC, profileVC]
         tabBar.tintColor = .label
-
-//        TODO: - Clean following methods after finalizing tab bar
-//        setupAppearance()
     }
 
     private func setupAppearance() {

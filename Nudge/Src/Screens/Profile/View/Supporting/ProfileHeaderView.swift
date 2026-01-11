@@ -23,7 +23,7 @@ class ProfileHeaderView: UIView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Kaustubh"
+        label.text = "Your name"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,8 +42,14 @@ class ProfileHeaderView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        if let savedName = UserDefaults.standard.string(forKey: "profile.name") {
+            nameLabel.text = savedName
+        }
+
         setupUI()
     }
+
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -66,5 +72,40 @@ class ProfileHeaderView: UIView {
             editLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             editLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
+        let tap = UITapGestureRecognizer(target: self, action: #selector(editTapped))
+        addGestureRecognizer(tap)
+        isUserInteractionEnabled = true
+    }
+
+    @objc private func editTapped() {
+        guard let viewController = parentViewController else { return }
+
+        let alert = UIAlertController(
+            title: "Edit Name",
+            message: nil,
+            preferredStyle: .alert
+        )
+
+        alert.addTextField { textField in
+            textField.placeholder = "Your name"
+            textField.text = self.nameLabel.text
+            textField.autocapitalizationType = .words
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+            guard let name = alert.textFields?.first?.text,
+                  !name.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+
+            self.nameLabel.text = name
+            UserDefaults.standard.set(name, forKey: "profile.name")
+        })
+
+        viewController.present(alert, animated: true)
+    }
+
+    func updateName(_ name: String) {
+        nameLabel.text = name
     }
 }

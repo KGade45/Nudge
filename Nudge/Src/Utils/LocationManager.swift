@@ -18,10 +18,7 @@ final class LocationManager: NSObject {
         super.init()
         manager.delegate = self
         manager.requestAlwaysAuthorization()
-        manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.startUpdatingLocation()
     }
-
 
     func isUserInsideLocation(trigger: TriggerModel) -> Bool {
         guard
@@ -54,13 +51,54 @@ final class LocationManager: NSObject {
 
         manager.startMonitoring(for: region)
     }
+
+    func registerProfileGeofence(
+        location: UserSelectedLocation,
+        identifier: String
+    ) {
+        let center = CLLocationCoordinate2D(
+            latitude: location.latitude,
+            longitude: location.longitude
+        )
+
+        let region = CLCircularRegion(
+            center: center,
+            radius: location.radius,
+            identifier: identifier
+        )
+
+        region.notifyOnEntry = true
+        region.notifyOnExit = false
+
+        manager.startMonitoring(for: region)
+    }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
 
-    func locationManager(_ manager: CLLocationManager,
-                         didEnterRegion region: CLRegion) {
+    func locationManager(
+        _ manager: CLLocationManager,
+        didEnterRegion region: CLRegion
+    ) {
+        switch region.identifier {
 
+        case "profile.home":
+            NotificationManager.shared.sendImmediateNotification(
+                title: "Welcome Home 🏠",
+                body: "You're back home"
+            )
+            return
+
+        case "profile.office":
+            NotificationManager.shared.sendImmediateNotification(
+                title: "Office Time 💼",
+                body: "You've reached the office"
+            )
+            return
+
+        default:
+            break
+        }
         guard let habitId = UUID(uuidString: region.identifier) else { return }
 
         let habitRepo = HabitRepository()
@@ -68,11 +106,13 @@ extension LocationManager: CLLocationManagerDelegate {
 
         guard let habit = habits.first(where: { $0.id == habitId }) else { return }
 
+        // Already completed today
         if let lastCompleted = habit.lastCompletedAt,
            Calendar.current.isDateInToday(lastCompleted) {
             return
         }
 
+        // Outside time window
         if !isWithinTimeWindow(habit: habit) {
             return
         }

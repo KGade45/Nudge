@@ -4,9 +4,9 @@
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We use your location to send helpful habit reminders when you arrive at relevant places.</string>
-	
+
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location access allows reminders even when the app is closed.</string>
+	<string>We use your location to trigger habit reminders when you arrive at selected places, even when the app is closed.</string>
 
 	<key>UIAppFonts</key>
 	<array>
