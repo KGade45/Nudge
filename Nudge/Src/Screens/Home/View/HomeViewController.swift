@@ -95,7 +95,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         
         let padding: CGFloat = 16 * 2
         let availableWidth = collectionView.frame.width - padding
-        let height: CGFloat = 150
+        let height: CGFloat = 120
         
         return CGSize(width: availableWidth, height: height)
     }

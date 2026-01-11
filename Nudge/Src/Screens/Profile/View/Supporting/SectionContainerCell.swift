@@ -21,7 +21,7 @@ class SectionContainerCell: UITableViewCell, ProfileItemViewDelegate {
     // The White Card Container
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemGroupedBackground // White in light mode
+        view.backgroundColor = .secondarySystemGroupedBackground
         view.layer.cornerRadius = 10
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -31,7 +31,7 @@ class SectionContainerCell: UITableViewCell, ProfileItemViewDelegate {
     private let stackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 0 // Spacing handled by internal padding/dividers
+        stack.spacing = 0
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
@@ -39,7 +39,7 @@ class SectionContainerCell: UITableViewCell, ProfileItemViewDelegate {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        backgroundColor = .clear // Transparent so we see grouped background
+        backgroundColor = .clear
         contentView.backgroundColor = .clear
         
         contentView.addSubview(containerView)

@@ -47,6 +47,15 @@ class HomeCollectionViewCell: UICollectionViewCell {
         return view
     }()
 
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .right
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     let statusLabel: UILabel = {
         let label = UILabel()
         label.text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
@@ -64,6 +73,7 @@ class HomeCollectionViewCell: UICollectionViewCell {
         containerView.addSubview(checkmark)
         containerView.addSubview(capsuleView)
         containerView.addSubview(statusLabel)
+        containerView.addSubview(timeLabel)
         setupConstraints()
         setupShadow()
     }
@@ -95,14 +105,31 @@ class HomeCollectionViewCell: UICollectionViewCell {
 
             statusLabel.topAnchor.constraint(equalTo: capsuleView.bottomAnchor, constant: 8),
             statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 25),
-            statusLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12)
-            
+            statusLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+
+            timeLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            timeLabel.topAnchor.constraint(equalTo: checkmark.bottomAnchor, constant: 4)
+
         ])
     }
 
     func configure(with habit: HabitModel) {
         titleLabel.text = habit.title
 
+        // MARK: - Time
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+
+        let today = Date()
+        var components = Calendar.current.dateComponents([.hour, .minute], from: today)
+        components.hour = habit.preferredStartHour
+        components.minute = 0
+
+        if let date = Calendar.current.date(from: components) {
+            timeLabel.text = formatter.string(from: date)
+        }
+
+        // MARK: - Completion state
         let isCompletedToday: Bool = {
             guard let lastCompleted = habit.lastCompletedAt else { return false }
             return Calendar.current.isDateInToday(lastCompleted)
@@ -110,7 +137,10 @@ class HomeCollectionViewCell: UICollectionViewCell {
 
         checkmark.isHidden = !isCompletedToday
 
-        // Capsule (time of day)
+        // Slight dimming if completed
+        containerView.alpha = isCompletedToday ? 0.9 : 1.0
+
+        // MARK: - Capsule (time of day)
         let hour = habit.preferredStartHour
         let capsuleTitle: String
         let capsuleColor: UIColor
@@ -118,10 +148,10 @@ class HomeCollectionViewCell: UICollectionViewCell {
         switch hour {
         case 5..<12:
             capsuleTitle = "Morning"
-            capsuleColor = .systemOrange
+            capsuleColor = .systemBlue
         case 12..<17:
             capsuleTitle = "Afternoon"
-            capsuleColor = .systemBlue
+            capsuleColor = .systemOrange
         case 17..<22:
             capsuleTitle = "Evening"
             capsuleColor = .systemPurple
@@ -132,9 +162,10 @@ class HomeCollectionViewCell: UICollectionViewCell {
 
         capsuleView.config(title: capsuleTitle, color: capsuleColor)
 
+        // MARK: - Status
         statusLabel.text = isCompletedToday
             ? "Completed for today 🎉"
-            : "Pending for today"
+            : "Tap to mark as done"
     }
 
     private func setupShadow() {
