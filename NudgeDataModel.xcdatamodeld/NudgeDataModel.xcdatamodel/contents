@@ -12,6 +12,8 @@
         <attribute name="lastCompletedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="preferredEndHour" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="preferredStartHour" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="repeatRule" attributeType="String"/>
+        <attribute name="sound" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <relationship name="completions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Completion" inverseName="habit" inverseEntity="Completion"/>
         <relationship name="triggers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Trigger" inverseName="habit" inverseEntity="Trigger"/>
