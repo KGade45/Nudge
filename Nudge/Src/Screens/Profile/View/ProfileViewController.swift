@@ -5,23 +5,33 @@
 //  Created by Kaustubh kailas gade on 09/12/25.
 //
 
+internal import CoreLocation
 import UIKit
 
 class ProfileViewController: UIViewController {
 
+    private var settings = ProfileSettingsStore.shared.load()
+
     // MARK: - Data Model
 
-    private let sectionsData: [[(name: String, info: String)]] = [
-        [("Wake-up Time", "7:30 AM"),
-         ("Work Start Time", "10:00 AM"),
-         ("Dinner Time", "8:30 PM")],
-        
-        [("Home Location", "Set"),
-         ("Office Location", "Set")],
-        
-        [("Notifications", "Allowed"),
-         ("Location Access", "While Using")]
-    ]
+    private var sectionsData: [[(name: String, info: String)]] {
+        [
+            [
+                ("Wake-up Time", timeString(settings.wakeUpTime)),
+                ("Work Start Time", timeString(settings.workStartTime)),
+                ("Dinner Time", timeString(settings.dinnerTime))
+            ],
+            [
+                ("Home Location", settings.homeLocation?.name ?? "Set"),
+                ("Office Location", settings.officeLocation?.name ?? "Set")
+            ],
+            [
+                ("Notifications", "Open Settings"),
+                ("Location Access", "Open Settings")
+            ]
+        ]
+    }
+
     
     private let sectionTitles = ["Routine", "Locations", "Permissions"]
     
@@ -62,6 +72,13 @@ class ProfileViewController: UIViewController {
     
     @objc private func handleBack() {
         navigationController?.popViewController(animated: true)
+    }
+
+    private func timeString(_ date: Date?) -> String {
+        guard let date else { return "Set" }
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 
@@ -111,14 +128,203 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 10 // Space between sections
     }
+
+    private func handleRoutineTap(index: Int) {
+        let pickerVC = TimePickerViewController(
+            selectedTime: currentTimeForIndex(index)
+        )
+
+        pickerVC.onDone = { [weak self] time in
+            guard let self else { return }
+
+            let id: String
+            let title: String
+            let body: String
+
+            switch index {
+            case 0:
+                self.settings.wakeUpTime = time
+                id = "profile.wakeup"
+                title = "Good Morning ☀️"
+                body = "Time to wake up"
+
+            case 1:
+                self.settings.workStartTime = time
+                id = "profile.work"
+                title = "Work Time"
+                body = "Time to start work"
+
+            case 2:
+                self.settings.dinnerTime = time
+                id = "profile.dinner"
+                title = "Dinner Time 🍽️"
+                body = "Time for dinner"
+
+            default:
+                return
+            }
+
+            ProfileSettingsStore.shared.save(self.settings)
+
+            // Replace existing alarm
+            UNUserNotificationCenter.current()
+                .removePendingNotificationRequests(withIdentifiers: [id])
+
+            self.scheduleDailyNotification(
+                id: id,
+                title: title,
+                body: body,
+                time: time
+            )
+
+            self.tableView.reloadData()
+        }
+
+        present(pickerVC, animated: true)
+    }
+
+
+    private func handleLocationTap(index: Int) {
+
+        
+        let mapVC = MapViewController()
+
+        mapVC.onLocationSelected = { [weak self] location in
+            guard let self else { return }
+            
+            let coord = CLLocationCoordinate2D(
+                latitude: location.latitude,
+                longitude: location.longitude
+            )
+
+            self.reverseGeocode(coordinate: coord) { place in
+                DispatchQueue.main.async {
+                    let finalLocation = UserSelectedLocation(
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        radius: location.radius,
+                        name: place ?? location.name,
+                        category: location.category
+                    )
+
+                    if index == 0 {
+                        self.settings.homeLocation = finalLocation
+                    } else {
+                        self.settings.officeLocation = finalLocation
+                    }
+
+                    ProfileSettingsStore.shared.save(self.settings)
+                    self.tableView.reloadData()
+                }
+            }
+        }
+
+        mapVC.onLocationSelected = { [weak self] location in
+            guard let self else { return }
+
+            if index == 0 {
+                self.settings.homeLocation = location
+            } else {
+                self.settings.officeLocation = location
+            }
+
+            ProfileSettingsStore.shared.save(self.settings)
+            self.tableView.reloadData()
+        }
+
+        navigationController?.pushViewController(mapVC, animated: true)
+    }
+
+    private func reverseGeocode(
+        coordinate: CLLocationCoordinate2D,
+        completion: @escaping (String?) -> Void
+    ) {
+        let geocoder = CLGeocoder()
+        let location = CLLocation(
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude
+        )
+
+        geocoder.reverseGeocodeLocation(location) { placemarks, _ in
+            let placemark = placemarks?.first
+            let address = [
+                placemark?.name,
+                placemark?.locality,
+                placemark?.administrativeArea
+            ]
+            .compactMap { $0 }
+            .joined(separator: ", ")
+
+            completion(address.isEmpty ? nil : address)
+        }
+    }
+
+    private func openSystemSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+
+    private func scheduleDailyNotification(
+        id: String,
+        title: String,
+        body: String,
+        time: Date
+    ) {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: time)
+        let minute = calendar.component(.minute, from: time)
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: components,
+            repeats: true
+        )
+
+        let request = UNNotificationRequest(
+            identifier: id,
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    private func currentTimeForIndex(_ index: Int) -> Date {
+        switch index {
+        case 0: return settings.wakeUpTime ?? Date()
+        case 1: return settings.workStartTime ?? Date()
+        case 2: return settings.dinnerTime ?? Date()
+        default: return Date()
+        }
+    }
 }
 
 // MARK: - Actions Delegate
 
 extension ProfileViewController: SectionContainerCellDelegate {
     func didTapItem(in section: Int, itemIndex: Int) {
-        let item = sectionsData[section][itemIndex]
-        print("Tapped: \(item.name)")
-        // Navigate to details...
+        switch section {
+
+        case 0:
+            handleRoutineTap(index: itemIndex)
+
+        case 1:
+            handleLocationTap(index: itemIndex)
+
+        case 2:
+            openSystemSettings()
+
+        default:
+            break
+        }
     }
+
 }

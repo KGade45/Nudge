@@ -313,38 +313,37 @@ final class AddHabitViewController: UIViewController {
         guard !habitLabel.isEmpty else { return }
 
         let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: selectedTime)
         let minute = calendar.component(.minute, from: selectedTime)
 
         var triggers: [TriggerModel] = []
 
-        // Time trigger
-        let startHour = Calendar.current.component(.hour, from: selectedTime)
-        triggers.append(
-            TriggerModel(
-                id: UUID(),
-                type: .time,
-                hour: startHour,
-                minute: minute,
-                latitude: nil,
-                longitude: nil,
-                radius: nil,
-                locationName: nil
-            )
+        let timeTrigger = TriggerModel(
+            id: UUID(),
+            type: .time,
+            hour: hour,
+            minute: minute,
+            latitude: nil,
+            longitude: nil,
+            radius: nil,
+            locationName: nil,
+            inactivityHours: 0
         )
+        triggers.append(timeTrigger)
 
-        if let coordinate = coordinates {
-            triggers.append(
-                TriggerModel(
-                    id: UUID(),
-                    type: .location,
-                    hour: nil,
-                    minute: nil,
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude,
-                    radius: 100, // meters (safe default)
-                    locationName: locationValueLabel.text
-                )
+        if let location = selectedLocation {
+            let locationTrigger = TriggerModel(
+                id: UUID(),
+                type: .location,
+                hour: 0,
+                minute: 0,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                radius: location.radius,
+                locationName: location.name,
+                inactivityHours: 0
             )
+            triggers.append(locationTrigger)
         }
 
         let habit = HabitModel(
@@ -352,8 +351,8 @@ final class AddHabitViewController: UIViewController {
             title: habitLabel,
             createdAt: Date(),
             isActive: true,
-            preferredStartHour: startHour,
-            preferredEndHour: startHour + 1,
+            preferredStartHour: hour,
+            preferredEndHour: min(hour + 1, 23),
             lastCompletedAt: nil,
             sound: selectedSound,
             repeatRule: selectedRepeat,

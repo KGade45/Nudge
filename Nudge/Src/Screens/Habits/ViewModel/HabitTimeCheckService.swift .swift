@@ -16,37 +16,24 @@ final class HabitTimeCheckService {
     private init() {}
 
     func handleTimeCheck(habitId: UUID) {
-        print("⏰ handleTimeCheck called for:", habitId)
-
         let habits = habitRepo.fetchAll()
-        print("📦 habits count:", habits.count)
-
         guard let habit = habits.first(where: { $0.id == habitId }) else {
-            print("❌ Habit not found")
             return
         }
 
-        print("📌 Habit found:", habit.title)
-
         if let lastCompleted = habit.lastCompletedAt,
            Calendar.current.isDateInToday(lastCompleted) {
-            print("✅ Already completed today")
             return
         }
 
         guard let locationTrigger = habit.triggers.first(where: {
             $0.type == .location
         }) else {
-            print("❌ No location trigger")
             return
         }
 
-        print("📍 Location trigger found:", locationTrigger.locationName ?? "nil")
-
         let isAtLocation = LocationManager.shared
             .isUserInsideLocation(trigger: locationTrigger)
-
-        print("📍 isAtLocation:", isAtLocation)
 
         if isAtLocation {
             NotificationManager.shared.sendImmediateNotification(

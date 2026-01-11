@@ -18,12 +18,15 @@ struct TriggerModel: Codable {
     let type: TriggerType
 
     // Time trigger
-    let hour: Int?
-    let minute: Int?
+    let hour: Int
+    let minute: Int
 
     // Location trigger
     let latitude: Double?
     let longitude: Double?
     let radius: Double?
     let locationName: String?
+
+    // Inactivity trigger
+    let inactivityHours: Int
 }

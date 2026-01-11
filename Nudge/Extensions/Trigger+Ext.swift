@@ -11,12 +11,11 @@ internal import CoreData
 extension Trigger {
 
     var toTriggerModel: TriggerModel {
-        let triggerType: TriggerModel.TriggerType =
-        TriggerModel.TriggerType(rawValue: self.type ?? "") ?? .time
-        
-        let hour: Int? = triggerType == .time ? Int(self.hour) : nil
-        let minute: Int? = triggerType == .time ? Int(self.minute) : nil
-        
+
+        let triggerType = TriggerModel.TriggerType(
+            rawValue: self.type ?? ""
+        ) ?? .time
+
         let latitude: Double? =
             triggerType == .location ? self.latitude?.doubleValue : nil
 
@@ -26,44 +25,70 @@ extension Trigger {
         let radius: Double? =
             triggerType == .location ? self.radius?.doubleValue : nil
 
-        let locationName: String? = triggerType == .location ? self.locationName : nil
-        
+        let locationName: String? =
+            triggerType == .location ? self.locationName : nil
+
         return TriggerModel(
             id: self.id ?? {
                 assertionFailure("Trigger id should never be nil")
                 return UUID()
             }(),
             type: triggerType,
-            hour: hour,
-            minute: minute,
+
+            // Time
+            hour: triggerType == .time ? Int(self.hour) : 0,
+            minute: triggerType == .time ? Int(self.minute) : 0,
+
+            // Location
             latitude: latitude,
             longitude: longitude,
             radius: radius,
-            locationName: locationName
+            locationName: locationName,
+
+            // Inactivity
+            inactivityHours: triggerType == .inactivity
+                ? Int(self.inactivityHours)
+                : 0
         )
     }
+}
 
-    convenience init(from model: TriggerModel,
-                     habit: Habit,
-                     context: NSManagedObjectContext) {
+extension Trigger {
 
+    convenience init(
+        from model: TriggerModel,
+        habit: Habit,
+        context: NSManagedObjectContext
+    ) {
         self.init(context: context)
 
         self.id = model.id
         self.type = model.type.rawValue
         self.habit = habit
 
-        // Time trigger
-        self.hour = Int16(model.hour ?? 0)
-        self.minute = Int16(model.minute ?? 0)
-
-        // Location trigger
-        self.latitude = model.latitude as NSNumber?
-        self.longitude = model.longitude as NSNumber?
-        self.radius = model.radius as NSNumber?
-        self.locationName = model.locationName
-
-        // Inactivity
+        // Reset everything (VERY IMPORTANT)
+        self.hour = 0
+        self.minute = 0
+        self.latitude = nil
+        self.longitude = nil
+        self.radius = nil
+        self.locationName = nil
         self.inactivityHours = 0
+
+        switch model.type {
+
+        case .time:
+            self.hour = Int16(model.hour)
+            self.minute = Int16(model.minute)
+
+        case .location:
+            self.latitude = model.latitude.map { NSNumber(value: $0) }
+            self.longitude = model.longitude.map { NSNumber(value: $0) }
+            self.radius = NSNumber(value: model.radius ?? 150)
+            self.locationName = model.locationName
+
+        case .inactivity:
+            self.inactivityHours = Int16(model.inactivityHours)
+        }
     }
 }
