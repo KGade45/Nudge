@@ -19,8 +19,8 @@ extension Trigger {
             type: TriggerModel.TriggerType(
                 rawValue: self.type ?? ""
             ) ?? .time,
-            startHour: 0,   // we’ll refine later
-            endHour: 0
+            hour: 0,
+            minute: 0
         )
     }
 
@@ -32,7 +32,11 @@ extension Trigger {
         self.id = model.id
         self.type = model.type.rawValue
 
-        // Time-based trigger → no location, no inactivity
+        // Time-based trigger
+        self.hour = Int16(model.hour)
+        self.minute = Int16(model.minute)
+
+        // Clear unused fields
         self.inactivityHours = 0
         self.latitude = nil
         self.longitude = nil
@@ -42,4 +46,3 @@ extension Trigger {
         self.habit = habit
     }
 }
-

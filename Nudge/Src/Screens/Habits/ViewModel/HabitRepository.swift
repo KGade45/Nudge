@@ -17,17 +17,18 @@ final class HabitRepository {
     }
 
     func scheduleNotifications(for habit: HabitModel) {
-        let hasTimeTrigger = habit.triggers.contains {
+        guard let timeTrigger = habit.triggers.first(where: {
             $0.type == .time
+        }) else {
+            return
         }
-
-        guard hasTimeTrigger else { return }
 
         NotificationManager.shared.scheduleTimeNotification(
             habitId: habit.id,
             title: "Nudge",
             body: "Time for \(habit.title)",
-            hour: habit.preferredStartHour
+            hour: timeTrigger.hour,
+            minute: timeTrigger.minute
         )
     }
 
@@ -37,24 +38,20 @@ final class HabitRepository {
 
         do {
             guard let habitEntity = try context.fetch(request).first else { return }
-
-            habitEntity.lastCompletedAt = Date()
-
             let calendar = Calendar.current
-
             if let lastCompleted = habitEntity.lastCompletedAt,
                calendar.isDateInToday(lastCompleted) {
                 return
             }
-            // Create Completion entity
+
+            habitEntity.lastCompletedAt = Date()
+
             let completion = Completion(context: context)
             completion.id = UUID()
             completion.completedAt = Date()
             completion.habit = habitEntity
 
             PersistenceManager.shared.saveContext()
-
-            // Cancel future notifications
             NotificationManager.shared.cancelNotification(for: habit.id)
 
         } catch {

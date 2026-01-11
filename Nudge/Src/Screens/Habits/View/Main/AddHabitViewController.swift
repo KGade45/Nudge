@@ -13,6 +13,7 @@ final class AddHabitViewController: UIViewController {
     private var habitLabel: String = ""
     private var selectedTime: Date = Date()
     private var selectedLocation: UserSelectedLocation?
+    private var coordinates: CLLocationCoordinate2D?
 
     private var labelRow: UIControl { labelRowPair.0 }
     private var labelValueLabel: UILabel { labelRowPair.1 }
@@ -22,6 +23,8 @@ final class AddHabitViewController: UIViewController {
 
     private var soundRow: UIControl { soundRowPair.0 }
     private var repeatRow: UIControl { repeatRowPair.0 }
+
+    private let habitRepository = HabitRepository()
 
     // MARK: - UI
 
@@ -242,7 +245,8 @@ final class AddHabitViewController: UIViewController {
             self.selectedLocation = location
             self.locationValueLabel.text = "Location selected"
             self.locationValueLabel.textColor = .label
-            let coordinates = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+            coordinates = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+            guard let coordinates else { return }
             self.reverseGeocode(coordinate: coordinates) { place in
                 DispatchQueue.main.async {
                     if let place = place {
@@ -265,7 +269,32 @@ final class AddHabitViewController: UIViewController {
     }
 
     @objc private func saveTapped() {
-        print("Save tapped")
+        guard !habitLabel.isEmpty else { return }
+
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: selectedTime)
+        let minute = calendar.component(.minute, from: selectedTime)
+
+        let timeTrigger = TriggerModel(
+            id: UUID(),
+            type: .time,
+            hour: hour,
+            minute: minute
+        )
+
+        let habit = HabitModel(
+            id: UUID(),
+            title: habitLabel,
+            createdAt: Date(),
+            isActive: true,
+            preferredStartHour: hour,
+            preferredEndHour: min(hour + 1, 23),
+            lastCompletedAt: nil,
+            triggers: [timeTrigger]
+        )
+
+        habitRepository.add(habit: habit)
+        navigationController?.popViewController(animated: true)
     }
 
     // MARK: - Helpers
@@ -394,4 +423,7 @@ final class AddHabitViewController: UIViewController {
         }
     }
 
+    private func extractHour(from date: Date) -> Int {
+        Calendar.current.component(.hour, from: date)
+    }
 }
