@@ -10,7 +10,7 @@ import SwiftUI
 
 class ProgressViewController: UIViewController {
 
-    private let progressRepository = ProgressRepository()
+    private let progressService = ProgressService()
 
     // MARK: - UI Elements
 
@@ -94,7 +94,7 @@ class ProgressViewController: UIViewController {
 
     private func updateDashboard(segmentIndex: Int) {
         if segmentIndex == 0 {
-            let result = progressRepository.weeklyProgress()
+            let result = progressService.weeklyProgress()
 
             dashboardHostingController?.rootView = ProgressDashboardView(
                 title: "Weekly Summary",
@@ -103,7 +103,7 @@ class ProgressViewController: UIViewController {
             )
 
         } else {
-            let result = progressRepository.monthlyProgress()
+            let result = progressService.monthlyProgress()
 
             dashboardHostingController?.rootView = ProgressDashboardView(
                 title: "Monthly Summary",

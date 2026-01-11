@@ -46,7 +46,7 @@ extension Trigger {
     convenience init(from model: TriggerModel,
                      habit: Habit,
                      context: NSManagedObjectContext) {
-        
+
         self.init(context: context)
 
         self.id = model.id
@@ -67,4 +67,3 @@ extension Trigger {
         self.inactivityHours = 0
     }
 }
-
